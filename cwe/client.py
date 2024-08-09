@@ -20,15 +20,28 @@ class CWE:
     url: str = DOWNLOAD_URL
     path: str = DEFAULT_PATH
 
-    def iter_weaknesses(self) -> Iterator[dict]:
+    def download(self):
         if not os.path.exists(self.path):
             os.makedirs(os.path.dirname(self.path), exist_ok=True)
             download_cwe_data(self.path)
+
+    def iter_weaknesses(self) -> Iterator[dict]:
+        if not os.path.exists(self.path):
+            self.download()
 
         with open(self.path, 'r') as f:
             data = xmltodict.parse(f.read())
             for o in data['Weakness_Catalog']['Weaknesses']['Weakness']:
                 yield parse_weakness(o)
+
+    def get_cwe_ids(self) -> List[str]:
+        return sorted({cwe['id'] for cwe in self.iter_weaknesses()})
+    
+    def get_cve_ids(self) -> List[str]:
+        cve_ids = set()
+        for cwe in self.iter_weaknesses():
+            cve_ids.update(cwe['related_cve_ids'])
+        return sorted(cve_ids)
     
     def get_weakness_scopes(self) -> List[str]:
         scopes = set()
