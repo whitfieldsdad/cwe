@@ -2,4 +2,3 @@ test.*
 __pycache__
 *.pyc
 .DS_Store
-data/cwec.xml

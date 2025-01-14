@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cwe"
-version = "0.1.0"
+version = "1.0.0"
 description = "MITRE Common Weakness Enumeration (CWE)"
 authors = ["Tyler Fisher <tylerfisher@tylerfisher.ca>"]
 readme = "README.md"
@@ -9,9 +9,11 @@ readme = "README.md"
 python = "^3.11"
 requests = "^2.32.3"
 xmltodict = "^0.13.0"
-networkx = "^3.3"
 dacite = "^1.8.1"
+click = "^8.1.8"
 
+[tool.poetry.scripts]
+tool = "cwe.cli:main"
 
 [build-system]
 requires = ["poetry-core"]
