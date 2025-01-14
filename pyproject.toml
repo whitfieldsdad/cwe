@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cwe"
-version = "1.0.0"
+version = "1.0.1"
 description = "MITRE Common Weakness Enumeration (CWE)"
 authors = ["Tyler Fisher <tylerfisher@tylerfisher.ca>"]
 readme = "README.md"
