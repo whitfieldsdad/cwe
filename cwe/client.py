@@ -280,7 +280,8 @@ def parse_view(o: dict) -> View:
     cwe_ids = set()
     if 'Members' in o:
         for m in o['Members']['Has_Member']:
-            cwe_ids.add(m['@CWE_ID'])
+            cwe_id = f"CWE-{m['@CWE_ID']}"
+            cwe_ids.add(cwe_id)
             
     objective = None
     if 'Objective' in o and isinstance(o['Objective'], str):
