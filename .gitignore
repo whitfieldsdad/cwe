@@ -1,4 +1,13 @@
-test.*
+.DS_Store
+
+.vscode/
+
+.venv/
+
 __pycache__
 *.pyc
-.DS_Store
+
+test.*
+cwec_v5.0.xml
+
+private/

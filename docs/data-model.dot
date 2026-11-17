@@ -1,0 +1,91 @@
+digraph G {
+    rankdir=LR
+    node [shape=box];
+    edge [color=blue];
+
+    consequences;
+    contributions;
+    custom_phases;
+    demonstrative_examples;
+    detection_methods;
+    dimensions;
+    external_reference_citations;
+    external_references;
+    groupings;
+    groupings;
+    mapping_notes;
+    mapping_suggestions;
+    mitigations;
+    modes_of_introduction;
+    modifications;
+    notes;
+    observed_examples;
+    platform_references;
+    previous_entry_names;
+    stakeholders;
+    submissions;
+    taxonomy_mappings;
+    alternate_terms;
+    views;
+    weakness_catalog;
+    weakness_ordinalities;
+    weakness_references;
+    weaknesses;
+
+    weakness_catalog -> weaknesses;
+    weakness_catalog -> groupings;
+    weakness_catalog -> views;
+    weakness_catalog -> external_references;
+    
+    modes_of_introduction -> custom_phases;
+    
+    detection_methods -> custom_phases;
+
+    weaknesses -> consequences;
+    weaknesses -> contributions;
+    weaknesses -> detection_methods;
+    weaknesses -> dimensions;
+    weaknesses -> external_reference_citations;
+    weaknesses -> mapping_notes;
+    weaknesses -> mitigations;
+    weaknesses -> modes_of_introduction;
+    weaknesses -> modifications;
+    weaknesses -> notes;
+    weaknesses -> demonstrative_examples;
+    weaknesses -> observed_examples;
+    weaknesses -> platform_references;
+    weaknesses -> previous_entry_names;
+    weaknesses -> submissions;
+    weaknesses -> taxonomy_mappings;
+    weaknesses -> alternate_terms;
+    weaknesses -> weakness_ordinalities;
+    weaknesses -> weakness_references;
+
+    weakness_references -> dimensions;
+
+    mapping_notes -> mapping_suggestions;
+
+    demonstrative_examples -> demonstrative_example_blocks;
+
+    mitigations -> custom_phases;
+
+    groupings -> contributions;
+    groupings -> external_reference_citations;
+    groupings -> mapping_notes;
+    groupings -> modifications;
+    groupings -> notes;
+    groupings -> previous_entry_names;
+    groupings -> submissions;
+    groupings -> taxonomy_mappings;
+    groupings -> weakness_references;
+
+    views -> contributions;
+    views -> external_reference_citations;
+    views -> mapping_notes;
+    views -> modifications;
+    views -> notes;
+    views -> previous_entry_names;
+    views -> stakeholders;
+    views -> submissions;
+    views -> weakness_references;
+}

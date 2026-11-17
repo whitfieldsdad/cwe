@@ -1,9 +1,8 @@
-from typing import Optional
+
+from cwe import client
+from cwe.constants import DEFAULT_JSON_INDENT
 
 import click
-
-from cwe.client import DOWNLOAD_URL
-from cwe import client
 
 
 @click.group()
@@ -16,28 +15,30 @@ def main(ctx: click.Context, verify_tls: bool):
 
 
 @main.command()
-@click.argument('output_path', default='cwec_latest.xml')
+@click.argument('output_path')
 @click.pass_context
 def download(ctx: click.Context, output_path: str):
     """
     Download the latest version of the CWE XML file. 
     """
-    client.download(
+    client.download_weakness_catalog(
         output_path=output_path,
-        verify_tls_certificate_chain=ctx.obj['verify_tls'],
+        verify_tls=ctx.obj['verify_tls'],
     )
     
 
 @main.command()
-@click.argument('input_path', default='cwec_latest.xml')
-@click.argument('output_path', default='cwec_latest.json')
-def convert(input_path: str, output_path: str):
+@click.argument('input_path')
+@click.argument('output_path')
+@click.option('--indent', type=int, default=DEFAULT_JSON_INDENT, help='Indentation level for the output JSON.')
+def convert(input_path: str, output_path: str, indent: int):
     """
     Convert the CWE XML file to JSON format.
     """
     client.convert(
         input_path=input_path,
         output_path=output_path,
+        indent=indent,
     )
 
 

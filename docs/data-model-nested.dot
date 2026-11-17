@@ -1,0 +1,147 @@
+// Nested view of the data model in cwe/types.py.
+//
+// - A cluster (titled box) is a type that embeds other types.
+// - A node is an embedded type that only has scalar fields.
+// - Containment means "is embedded in", so there are no edges to follow.
+// - Each label reads `field_name` over `Type`.
+// - A type that is embedded in several places is drawn once per place, always
+//   in the same colour, so repeats are easy to spot. White = used only once.
+//
+// Render with: dot -Tsvg docs/data-model-nested.dot -o docs/data-model-nested.svg
+//
+// Note: under rankdir=LR, dot stacks the members of a column bottom-to-top, so
+// everything is declared in the reverse of the order it is drawn in.
+
+digraph data_model {
+    rankdir=LR;
+    nodesep=0.12;
+    ranksep=0.4;
+
+    graph [style="rounded,filled", fillcolor=white, color=gray40, fontname="Helvetica", fontsize=12, labeljust=l];
+    node  [shape=box, style="rounded,filled", fillcolor=white, color=gray40, fontname="Helvetica", fontsize=10, width=2.4, height=0.42];
+    edge  [style=invis];
+
+    subgraph cluster_weakness_catalog {
+        label=<<b>WeaknessCatalog</b>>;
+        fillcolor=gray97;
+
+        // ExternalReference (embeds no other types, so the cluster only holds a placeholder)
+        subgraph cluster_r {
+            label=<<b>external_references</b><br align="left"/>List[ExternalReference]<br align="left"/>>;
+            fillcolor=gray92;
+            r_scalars [label="scalar fields only", shape=plaintext, style="", fontcolor=gray40];
+        }
+
+        // View
+        subgraph cluster_v {
+            label=<<b>views</b><br align="left"/>List[View]<br align="left"/>>;
+            fillcolor=gray92;
+            v_previous_entry_names [label="previous_entry_names\nList[PreviousEntryName]", fillcolor="/set312/8"];
+            v_contribution_history [label="contribution_history\nList[Contribution]", fillcolor="/set312/7"];
+            v_modification_history [label="modification_history\nList[Modification]", fillcolor="/set312/6"];
+            v_submission_history [label="submission_history\nList[Submission]", fillcolor="/set312/5"];
+            v_notes [label="notes\nList[Note]", fillcolor="/set312/4"];
+            v_references [label="references\nList[ExternalReferenceCitation]", fillcolor="/set312/3"];
+            v_audience [label="audience\nList[Stakeholder]"];
+
+            subgraph cluster_v_mapping_notes {
+                label=<<b>mapping_notes</b><br align="left"/>Optional[MappingNotes]<br align="left"/>>;
+                fillcolor="/set312/11";
+                v_mapping_notes_suggestions [label="suggestions\nList[MappingSuggestion]", fillcolor="/set312/12"];
+            }
+
+            subgraph cluster_v_members {
+                label=<<b>members</b><br align="left"/>List[WeaknessReference]<br align="left"/>>;
+                fillcolor="/set312/10";
+                v_members_dimensions [label="dimensions\nList[Dimension]", fillcolor="/set312/1"];
+            }
+        }
+
+        // Grouping
+        subgraph cluster_g {
+            label=<<b>groupings</b><br align="left"/>List[Grouping]<br align="left"/>>;
+            fillcolor=gray92;
+            g_previous_entry_names [label="previous_entry_names\nList[PreviousEntryName]", fillcolor="/set312/8"];
+            g_contribution_history [label="contribution_history\nList[Contribution]", fillcolor="/set312/7"];
+            g_modification_history [label="modification_history\nList[Modification]", fillcolor="/set312/6"];
+            g_submission_history [label="submission_history\nList[Submission]", fillcolor="/set312/5"];
+            g_notes [label="notes\nList[Note]", fillcolor="/set312/4"];
+            g_references [label="references\nList[ExternalReferenceCitation]", fillcolor="/set312/3"];
+            g_taxonomy_mappings [label="taxonomy_mappings\nList[TaxonomyMapping]", fillcolor="/set312/2"];
+
+            subgraph cluster_g_mapping_notes {
+                label=<<b>mapping_notes</b><br align="left"/>Optional[MappingNotes]<br align="left"/>>;
+                fillcolor="/set312/11";
+                g_mapping_notes_suggestions [label="suggestions\nList[MappingSuggestion]", fillcolor="/set312/12"];
+            }
+
+            subgraph cluster_g_members {
+                label=<<b>members</b><br align="left"/>List[WeaknessReference]<br align="left"/>>;
+                fillcolor="/set312/10";
+                g_members_dimensions [label="dimensions\nList[Dimension]", fillcolor="/set312/1"];
+            }
+        }
+
+        // Weakness
+        subgraph cluster_w {
+            label=<<b>weaknesses</b><br align="left"/>List[Weakness]<br align="left"/>>;
+            fillcolor=gray92;
+            w_previous_entry_names [label="previous_entry_names\nList[PreviousEntryName]", fillcolor="/set312/8"];
+            w_contribution_history [label="contribution_history\nList[Contribution]", fillcolor="/set312/7"];
+            w_modification_history [label="modification_history\nList[Modification]", fillcolor="/set312/6"];
+            w_submission_history [label="submission_history\nList[Submission]", fillcolor="/set312/5"];
+            w_notes [label="notes\nList[Note]", fillcolor="/set312/4"];
+            w_references [label="references\nList[ExternalReferenceCitation]", fillcolor="/set312/3"];
+            w_taxonomy_mappings [label="taxonomy_mappings\nList[TaxonomyMapping]", fillcolor="/set312/2"];
+            w_dimensions [label="dimensions\nList[Dimension]", fillcolor="/set312/1"];
+            w_weakness_ordinalities [label="weakness_ordinalities\nList[WeaknessOrdinality]"];
+            w_observed_examples [label="observed_examples\nList[ObservedExample]"];
+            w_common_consequences [label="common_consequences\nList[Consequence]"];
+            w_applicable_platforms [label="applicable_platforms\nList[PlatformReference]"];
+            w_alternate_terms [label="alternate_terms\nList[AlternateTerm]"];
+
+            subgraph cluster_w_mapping_notes {
+                label=<<b>mapping_notes</b><br align="left"/>Optional[MappingNotes]<br align="left"/>>;
+                fillcolor="/set312/11";
+                w_mapping_notes_suggestions [label="suggestions\nList[MappingSuggestion]", fillcolor="/set312/12"];
+            }
+
+            subgraph cluster_w_related_weaknesses {
+                label=<<b>related_weaknesses</b><br align="left"/>List[WeaknessReference]<br align="left"/>>;
+                fillcolor="/set312/10";
+                w_related_weaknesses_dimensions [label="dimensions\nList[Dimension]", fillcolor="/set312/1"];
+            }
+
+            subgraph cluster_w_demonstrative_examples {
+                label=<<b>demonstrative_examples</b><br align="left"/>List[DemonstrativeExample]<br align="left"/>>;
+                fillcolor=white;
+                w_demonstrative_examples_references [label="references\nList[ExternalReferenceCitation]", fillcolor="/set312/3"];
+                w_demonstrative_examples_body [label="body\nList[DemonstrativeExampleBlock]"];
+            }
+
+            subgraph cluster_w_potential_mitigations {
+                label=<<b>potential_mitigations</b><br align="left"/>List[Mitigation]<br align="left"/>>;
+                fillcolor=white;
+                w_potential_mitigations_custom_phases [label="custom_phases\nList[CustomPhase]", fillcolor="/set312/9"];
+            }
+
+            subgraph cluster_w_detection_methods {
+                label=<<b>detection_methods</b><br align="left"/>List[DetectionMethod]<br align="left"/>>;
+                fillcolor=white;
+                w_detection_methods_custom_phases [label="custom_phases\nList[CustomPhase]", fillcolor="/set312/9"];
+            }
+
+            subgraph cluster_w_modes_of_introduction {
+                label=<<b>modes_of_introduction</b><br align="left"/>List[ModeOfIntroduction]<br align="left"/>>;
+                fillcolor=white;
+                w_modes_of_introduction_custom_phases [label="custom_phases\nList[CustomPhase]", fillcolor="/set312/9"];
+            }
+        }
+    }
+
+    // Layout only: invisible edges that put the simple fields of each type in
+    // one column and its compound fields in the next.
+    w_previous_entry_names -> { w_mapping_notes_suggestions; w_related_weaknesses_dimensions; w_demonstrative_examples_body; w_potential_mitigations_custom_phases; w_detection_methods_custom_phases; w_modes_of_introduction_custom_phases };
+    g_previous_entry_names -> { g_mapping_notes_suggestions; g_members_dimensions };
+    v_previous_entry_names -> { v_mapping_notes_suggestions; v_members_dimensions };
+}

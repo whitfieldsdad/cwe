@@ -11,6 +11,7 @@ requests = "^2.32.3"
 xmltodict = "^0.13.0"
 dacite = "^1.8.1"
 click = "^8.1.8"
+polars = "^2.1.0"
 
 [tool.poetry.scripts]
 tool = "cwe.cli:main"
@@ -18,3 +19,8 @@ tool = "cwe.cli:main"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.2.0,<10.0.0)"
+]
