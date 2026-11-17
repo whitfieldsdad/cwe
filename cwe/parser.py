@@ -144,7 +144,7 @@ def parse_weakness_reference(o: ET.Element) -> WeaknessReference:
     Parse a `Related_Weakness` element, or a `Has_Member` element of a grouping or view.
     """
     data = {
-        "cwe_id": o.attrib["CWE_ID"],
+        "weakness_id": o.attrib["CWE_ID"],
         "view_id": o.get("View_ID"),
         "nature": HAS_MEMBER if _local_name(o) == "Has_Member" else o.get("Nature"),
         "ordinal": o.get("Ordinal"),

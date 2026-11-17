@@ -44,4 +44,3 @@ cwe.client.download(output_path=output_path)
 ```
 
 > You can disable TLS verification by passing `verify_tls=False` to the `download` function.
-

@@ -1,9 +1,8 @@
-from __future__ import annotations
-
 import datetime
 import dataclasses
+import itertools
 import re
-from typing import Iterable, List, Optional
+from typing import Iterable, Iterator, List, Optional, Tuple
 from dataclasses import dataclass
 
 
@@ -28,21 +27,55 @@ class WeaknessCatalog:
     views: List[View]
     external_references: List[ExternalReference]
 
-    @property
-    def consequences(self) -> List[Consequence]:
-        return _unique_sorted(c for w in self.weaknesses for c in w.common_consequences)
+    def iter_weaknesses(
+            self,
+            weakness_ids: Optional[Iterable[str]] = None,
+            confidentiality_impact: Optional[bool] = None, 
+            integrity_impact: Optional[bool] = None, 
+            availability_impact: Optional[bool] = None) -> Iterator[Weakness]:
 
-    @property
-    def detection_methods(self) -> List[DetectionMethod]:
-        return _unique_sorted(d for w in self.weaknesses for d in w.detection_methods)
+        for w in self.weaknesses:
+            if weakness_ids is not None and f'CWE-{w.id}' not in weakness_ids:
+                continue
 
-    @property
-    def weaknesses_to_techniques(self) -> dict:
-        return dict((w.id, [t for t in w.related_attack_patterns]) for w in self.weaknesses)
+            if confidentiality_impact is not None and confidentiality_impact != w.confidentiality_impact:
+                continue
+            
+            if integrity_impact is not None and integrity_impact != w.integrity_impact:
+                continue
+            
+            if availability_impact is not None and availability_impact != w.availability_impact:
+                continue
 
-    @property
-    def weaknesses_to_cves(self) -> dict:
-        return dict((w.id, [cve for cve in w.related_cve_ids]) for w in self.weaknesses)
+            yield w
+
+    def iter_groupings(self) -> Iterator[Grouping]:
+        for g in self.groupings:
+            yield g
+
+    def iter_views(self) -> Iterator[View]:
+        for v in self.views:
+            yield v
+
+    def iter_external_references(self) -> Iterator[ExternalReference]:
+        for ref in self.external_references:
+            yield ref
+
+    def get_map_of_weaknesses_to_capec_techniques(self) -> dict:
+        m = {}
+        for w in self.weaknesses:
+            weakness_id = f'CWE-{w.id}'
+            technique_ids = [f'CAPEC-{t}' for t in w.related_attack_patterns]
+            m[weakness_id] = technique_ids
+        return m
+
+    def get_map_of_weaknesses_to_cve_vulnerabilities(self) -> dict:
+        m = {}
+        for w in self.weaknesses:
+            weakness_id = f'CWE-{w.id}'
+            cve_ids = [f'CVE-{cve}' for cve in w.related_cve_ids]
+            m[weakness_id] = cve_ids
+        return m
 
 
 @dataclass()
@@ -81,6 +114,44 @@ class Consequence:
     impact: List[str]
     note: Optional[str]
     likelihood: Optional[str]
+
+    @property
+    def cia(self) -> Tuple[bool, bool, bool]:
+        return (
+            self.confidentiality_impact,
+            self.integrity_impact,
+            self.availability_impact
+        )
+
+    @property
+    def confidentiality_impact(self) -> bool:
+        return self.has_confidentiality_impact()
+
+    @property
+    def integrity_impact(self) -> bool:
+        return self.has_integrity_impact()
+
+    @property
+    def availability_impact(self) -> bool:
+        return self.has_availability_impact()
+
+    def has_confidentiality_impact(self) -> bool:
+        return 'Confidentiality' in self.scope
+
+    def has_integrity_impact(self) -> bool:
+        return 'Integrity' in self.scope
+
+    def has_availability_impact(self) -> bool:
+        return 'Availability' in self.scope
+
+    def has_high_likelihood(self) -> bool:
+        return self.likelihood == 'High'
+
+    def has_medium_likelihood(self) -> bool:
+        return self.likelihood == 'Medium'
+
+    def has_low_likelihood(self) -> bool:
+        return self.likelihood == 'Low'
 
 
 @dataclass()
@@ -138,6 +209,35 @@ class Weakness:
     weakness_ordinalities: List[WeaknessOrdinality]
 
     @property
+    def cwe_id(self) -> str:
+        return f'CWE-{self.id}'
+
+    @property
+    def impact_scope(self) -> List[str]:
+        return sorted(set(itertools.chain.from_iterable(c.scope for c in self.common_consequences)))
+
+    @property
+    def confidentiality_impact(self) -> bool:
+        return self.has_confidentiality_impact()
+
+    @property
+    def integrity_impact(self) -> bool:
+        return self.has_integrity_impact()
+
+    @property
+    def availability_impact(self) -> bool:
+        return self.has_availability_impact()
+
+    def has_confidentiality_impact(self) -> bool:
+        return any(c.confidentiality_impact for c in self.common_consequences)
+
+    def has_integrity_impact(self) -> bool:
+        return any(c.integrity_impact for c in self.common_consequences)
+
+    def has_availability_impact(self) -> bool:
+        return any(c.availability_impact for c in self.common_consequences)
+
+    @property
     def can_precede(self) -> List[str]:
         return [r.cwe_id for r in self.related_weaknesses if r.is_can_precede_reference()]
 
@@ -150,8 +250,12 @@ class Weakness:
         return [r.external_reference_id for r in self.references]
 
     @property
+    def related_cwe_ids(self) -> List[str]:
+        return sorted({r.cwe_id for r in self.related_weaknesses})
+
+    @property
     def related_cve_ids(self) -> List[str]:
-        return [o.reference for o in self.observed_examples if o.is_cve_id()]
+        return sorted({o.reference for o in self.observed_examples if o.is_cve_id()})
 
 
 @dataclass()
@@ -168,7 +272,7 @@ class Dimension:
 
 @dataclass()
 class WeaknessReference:
-    cwe_id: str
+    weakness_id: str
     view_id: Optional[str]
     nature: Optional[str]           # e.g. ChildOf, CanPrecede, or HasMember (members of groupings and views)
     ordinal: Optional[str]
@@ -405,15 +509,3 @@ class View:
 
     def is_obsolete(self) -> bool:
         return self.status == OBSOLETE
-
-
-def _unique_sorted(items: Iterable) -> list:
-    """
-    De-duplicate and sort dataclass instances by the values of all of their fields.
-    """
-    def key(item):
-        values = dataclasses.astuple(item)
-        return tuple(tuple(v) if isinstance(v, list) else v or '' for v in values)
-
-    unique = {key(item): item for item in items}
-    return [unique[k] for k in sorted(unique)]
