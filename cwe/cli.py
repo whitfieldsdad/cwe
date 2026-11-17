@@ -35,7 +35,7 @@ def convert(input_path: str, output_path: str, indent: int):
     """
     Convert the CWE XML file to JSON format.
     """
-    client.convert(
+    client.convert_from_xml_to_json(
         input_path=input_path,
         output_path=output_path,
         indent=indent,
